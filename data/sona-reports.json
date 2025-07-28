@@ -1,0 +1,95 @@
+{
+    "2025": {
+        "july": {
+            "date": "July 24, 2025",
+            "title": "Main SONA",
+            "venue": "Batasang Pambansa",
+            "duration": "72 minutes",
+            "keyPoints": {
+                "economy": [
+                    "GDP growth at 5.4%",
+                    "Inflation down to 1.4%",
+                    "$21B US investment pledges",
+                    "Exit from FATF Grey List"
+                ],
+                "infrastructure": [
+                    "194 Infrastructure Flagship Projects update",
+                    "MRT-7 at 80% completion",
+                    "NSCR at 30% completion",
+                    "LRT-1 Cavite Extension completed"
+                ],
+                "agriculture": [
+                    "P20/kilo rice program progress",
+                    "Farm-to-market roads expansion",
+                    "Coconut Farmers Trust Fund amendments"
+                ],
+                "governance": [
+                    "West Philippine Sea policy",
+                    "Climate Fund Board participation",
+                    "POGO industry regulations"
+                ]
+            },
+            "reactions": {
+                "opposition": "Criticized economic numbers as not reflecting ground reality",
+                "business": "Welcomed infrastructure progress but called for faster implementation",
+                "civil_society": "Raised concerns about human rights and press freedom"
+            },
+            "fullText": "path/to/july-speech.pdf",
+            "mediaLinks": {
+                "video": "youtube-link",
+                "photos": "gallery-link"
+            }
+        },
+        "march": {
+            "date": "March 15, 2025",
+            "title": "Special Economic Address",
+            "venue": "House of Representatives",
+            "duration": "45 minutes",
+            "keyPoints": {
+                "economy": [
+                    "FATF Grey List exit announcement",
+                    "New economic zones",
+                    "Digital transformation initiatives",
+                    "US investment partnerships"
+                ],
+                "reforms": [
+                    "Financial system modernization",
+                    "Anti-money laundering measures",
+                    "Digital banking framework"
+                ]
+            },
+            "reactions": {
+                "markets": "Positive market response, PSEi up 2.3%",
+                "foreign_investors": "Increased interest in IT-BPM sector",
+                "analysts": "Praised financial system reforms"
+            }
+        },
+        "january": {
+            "date": "January 5, 2025",
+            "title": "Post-Disaster Address",
+            "venue": "Malacañang Palace",
+            "duration": "38 minutes",
+            "keyPoints": {
+                "disaster_response": [
+                    "₱25B emergency fund allocation",
+                    "Military deployment for rescue",
+                    "International aid coordination"
+                ],
+                "rehabilitation": [
+                    "Infrastructure resilience program",
+                    "Housing reconstruction plan",
+                    "Agricultural recovery measures"
+                ]
+            },
+            "impact": {
+                "affected_regions": [
+                    "Bicol",
+                    "Eastern Visayas",
+                    "CALABARZON"
+                ],
+                "damage_cost": "₱18.7B",
+                "recovery_timeline": "6-12 months"
+            }
+        }
+    }
+}

@@ -11,6 +11,7 @@
     <title>SONA 2025: Interactive Analysis of the Philippine State of the Nation Address</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/updates-tracker.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -104,6 +105,12 @@
                             Response</a>
                         <a href="#outlook"
                             class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">Outlook</a>
+                        <a href="archive.html"
+                            class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">SONA
+                            Archive</a>
+                        <a href="#live-updates"
+                            class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">Live
+                            Updates</a>
                     </div>
                 </div>
             </div>
@@ -315,6 +322,38 @@
                                 being the authentic voice of the masses feeling left behind by the economy.</span>
                         </li>
                     </ul>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-gray-300">
+
+        <section id="live-updates" class="py-12 md:py-16">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#333333]">Latest Updates</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Track the latest accomplishments and
+                    developments
+                    from the administration, automatically updated from official sources and verified news outlets.</p>
+            </div>
+
+            <div class="mt-12">
+                <div class="mb-6 flex justify-center space-x-2">
+                    <button id="filter-all-updates"
+                        class="px-4 py-2 text-sm font-medium bg-gray-200 rounded-md hover:bg-gray-300">All
+                        Updates</button>
+                    <button id="filter-official"
+                        class="px-4 py-2 text-sm font-medium bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200">Official</button>
+                    <button id="filter-news"
+                        class="px-4 py-2 text-sm font-medium bg-green-100 text-green-800 rounded-md hover:bg-green-200">News</button>
+                </div>
+                <div id="updates-grid" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- Updates will be dynamically inserted here -->
+                </div>
+                <div id="loading-updates" class="text-center py-8">
+                    <div
+                        class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600">
+                    </div>
+                    <p class="mt-2 text-gray-600">Loading latest updates...</p>
                 </div>
             </div>
         </section>
@@ -568,6 +607,73 @@
                 observer.observe(section);
             });
 
+            // Initialize updates tracker
+            const updatesTracker = new UpdatesTracker();
+            let currentFilter = 'all';
+
+            async function loadUpdates() {
+                const loadingElement = document.getElementById('loading-updates');
+                const updatesGrid = document.getElementById('updates-grid');
+
+                try {
+                    loadingElement.style.display = 'block';
+                    const updates = await updatesTracker.getUpdates();
+                    const filteredUpdates = filterUpdates(updates, currentFilter);
+                    renderUpdates(filteredUpdates);
+                } catch (error) {
+                    console.error('Error loading updates:', error);
+                    updatesGrid.innerHTML = '<p class="text-red-600">Error loading updates. Please try again later.</p>';
+                } finally {
+                    loadingElement.style.display = 'none';
+                }
+            }
+
+            function filterUpdates(updates, filter) {
+                if (filter === 'all') return updates;
+                return updates.filter(update => update.type === filter);
+            }
+
+            function renderUpdates(updates) {
+                const grid = document.getElementById('updates-grid');
+                grid.innerHTML = updates.map(update => `
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-2 py-1 text-xs font-medium rounded ${update.type === 'official' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                    }">${update.type}</span>
+                                <span class="text-sm text-gray-500">${update.date.toLocaleDateString()}</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2">${update.title}</h3>
+                            <p class="text-gray-600 text-sm mb-4">${update.description}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">${update.source}</span>
+                                <a href="${update.url}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Read More →</a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Event listeners for filters
+            document.getElementById('filter-all-updates').addEventListener('click', () => {
+                currentFilter = 'all';
+                loadUpdates();
+            });
+
+            document.getElementById('filter-official').addEventListener('click', () => {
+                currentFilter = 'official';
+                loadUpdates();
+            });
+
+            document.getElementById('filter-news').addEventListener('click', () => {
+                currentFilter = 'news';
+                loadUpdates();
+            });
+
+            // Load updates initially
+            loadUpdates();
+            // Refresh updates every 30 minutes
+            setInterval(loadUpdates, 1800000);
         });
     </script>
 </body>

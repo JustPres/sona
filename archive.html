@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SONA 2025 Archive: Historical State of the Nation Addresses</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333333;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        .timeline {
+            --line-color: #4A6C8C;
+            --dot-color: #4A6C8C;
+            --dot-border: #FFFFFF;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0.45rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg,
+                    var(--line-color) 0%,
+                    var(--line-color) 100%);
+            opacity: 0.3;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            border: 2px solid var(--dot-border);
+            background-color: var(--dot-color);
+            box-shadow: 0 0 0 3px rgba(74, 108, 140, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover::after {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 5px rgba(74, 108, 140, 0.2);
+        }
+
+        .timeline-card {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 7px 7px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="font-bold text-xl text-[#333333]">SONA 2025</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html"
+                            class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">Back
+                            to Main</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-[#333333]">SONA Archive 2025</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">A comprehensive record of President Marcos Jr.'s
+                State of the Nation Addresses in 2025, tracking the evolution of key themes and promises.</p>
+        </div>
+
+        <div class="grid gap-8 md:grid-cols-2">
+            <!-- Key Statistics Comparison -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Economic Indicators</h2>
+                <div class="chart-container">
+                    <canvas id="economicChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Theme Analysis -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Key Themes</h2>
+                <div class="chart-container">
+                    <canvas id="themeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline of Events -->
+        <div class="mt-12 bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-8">SONA Timeline 2025</h2>
+            <div class="timeline relative pl-8">
+                <!-- Dynamic Timeline Content -->
+                <div id="timeline-container">
+                    <!-- Timeline items will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Detailed Report Modal -->
+            <div id="report-modal"
+                class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto mx-4">
+                    <div
+                        class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                        <h3 id="modal-title" class="text-2xl font-bold text-gray-900"></h3>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="modal-content" class="p-6">
+                        <!-- Content will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legislative Progress -->
+        <div class="mt-12 bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-6">Legislative Progress Tracking</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Promise Made
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status (July)
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4">P20/kilo Rice Program</td>
+                            <td class="px-6 py-4">Partially Implemented</td>
+                            <td class="px-6 py-4">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4">Infrastructure Projects</td>
+                            <td class="px-6 py-4">On Track</td>
+                            <td class="px-6 py-4">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4">Digital Transformation</td>
+                            <td class="px-6 py-4">In Progress</td>
+                            <td class="px-6 py-4">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 45%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let sonaData = null;
+
+        async function loadSONAData() {
+            try {
+                const response = await fetch('data/sona-reports.json');
+                sonaData = await response.json();
+                renderTimeline();
+            } catch (error) {
+                console.error('Error loading SONA data:', error);
+            }
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            const year2025 = sonaData['2025'];
+
+            Object.entries(year2025).reverse().forEach(([month, data]) => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item relative pb-8';
+
+                timelineItem.innerHTML = `
+                    <div class="timeline-card bg-white p-6 rounded-lg shadow-md mb-8 cursor-pointer hover:shadow-lg transition-all duration-300"
+                         onclick="showDetailedReport('2025', '${month}')">
+                        <h3 class="text-xl font-bold">${data.date} - ${data.title}</h3>
+                        <p class="mt-2 text-gray-600">${data.duration} at ${data.venue}</p>
+                        <div class="mt-4 stats-grid">
+                            ${renderQuickStats(data)}
+                        </div>
+                        <div class="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Click to view detailed report →
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(timelineItem);
+            });
+        }
+
+        function renderQuickStats(data) {
+            let statsHTML = '';
+
+            if (data.keyPoints) {
+                let totalPoints = 0;
+                Object.values(data.keyPoints).forEach(points => {
+                    totalPoints += points.length;
+                });
+
+                statsHTML += `
+                    <div class="stat-card">
+                        <div class="text-sm text-gray-500">Key Points</div>
+                        <div class="text-2xl font-bold text-[#4A6C8C]">${totalPoints}</div>
+                    </div>
+                `;
+            }
+
+            if (data.duration) {
+                statsHTML += `
+                    <div class="stat-card">
+                        <div class="text-sm text-gray-500">Duration</div>
+                        <div class="text-2xl font-bold text-[#4A6C8C]">${data.duration}</div>
+                    </div>
+                `;
+            }
+
+            return statsHTML;
+        }
+
+        function showDetailedReport(year, month) {
+            const data = sonaData[year][month];
+            const modal = document.getElementById('report-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+
+            modalTitle.textContent = `${data.date} - ${data.title}`;
+
+            let content = `
+                <div class="space-y-6">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="text-sm text-gray-500">Venue</div>
+                        <div class="text-lg font-medium">${data.venue}</div>
+                        <div class="text-sm text-gray-500 mt-2">Duration</div>
+                        <div class="text-lg font-medium">${data.duration}</div>
+                    </div>
+            `;
+
+            // Key Points
+            if (data.keyPoints) {
+                content += `
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-bold">Key Points</h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                `;
+
+                for (const [category, points] of Object.entries(data.keyPoints)) {
+                    content += `
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h5 class="font-medium capitalize mb-2">${category}</h5>
+                            <ul class="space-y-2">
+                                ${points.map(point => `<li class="text-sm text-gray-600">• ${point}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                content += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Reactions
+            if (data.reactions) {
+                content += `
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-bold">Reactions</h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                `;
+
+                for (const [group, reaction] of Object.entries(data.reactions)) {
+                    content += `
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h5 class="font-medium capitalize mb-2">${group.replace('_', ' ')}</h5>
+                            <p class="text-sm text-gray-600">${reaction}</p>
+                        </div>
+                    `;
+                }
+
+                content += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Impact (if available)
+            if (data.impact) {
+                content += `
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-bold">Impact Assessment</h4>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            ${Object.entries(data.impact).map(([key, value]) => `
+                                <div class="mb-3">
+                                    <div class="text-sm font-medium capitalize">${key.replace('_', ' ')}</div>
+                                    <div class="text-gray-600">${Array.isArray(value) ? value.join(', ') : value}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            content += '</div>';
+
+            modalContent.innerHTML = content;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('report-modal').classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSONAData();
+
+            // Close modal when clicking outside
+            document.getElementById('report-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'report-modal') {
+                    closeModal();
+                }
+            });
+
+            // Economic Indicators Chart
+            const economicCtx = document.getElementById('economicChart').getContext('2d');
+            new Chart(economicCtx, {
+                type: 'line',
+                data: {
+                    labels: ['January', 'March', 'July'],
+                    datasets: [{
+                        label: 'GDP Growth (%)',
+                        data: [4.8, 5.1, 5.4],
+                        borderColor: '#4A6C8C',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Inflation Rate (%)',
+                        data: [2.1, 1.8, 1.4],
+                        borderColor: '#B95C50',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Economic Indicators Throughout 2025'
+                        }
+                    }
+                }
+            });
+
+            // Theme Analysis Chart
+            const themeCtx = document.getElementById('themeChart').getContext('2d');
+            new Chart(themeCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Economy', 'Infrastructure', 'Agriculture', 'Foreign Policy', 'Social Programs', 'Climate'],
+                    datasets: [{
+                        label: 'January',
+                        data: [3, 2, 2, 1, 2, 5],
+                        fill: true,
+                        backgroundColor: 'rgba(74, 108, 140, 0.2)',
+                        borderColor: '#4A6C8C',
+                        pointBackgroundColor: '#4A6C8C'
+                    },
+                    {
+                        label: 'July',
+                        data: [4, 4, 5, 3, 3, 3],
+                        fill: true,
+                        backgroundColor: 'rgba(185, 92, 80, 0.2)',
+                        borderColor: '#B95C50',
+                        pointBackgroundColor: '#B95C50'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Theme Focus Analysis'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
