@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: A top-down, non-linear exploratory structure. The user starts with a high-level "At a Glance" summary establishing the core conflict. They can then use the sticky navigation to dive into specific, themed sections: "The Political Divide" (focusing on the key actors and their alliances), "The President's Agenda" (a tabbed interface for exploring policy specifics), and "The Nation's Response" (a comparative view of different societal reactions). This structure prioritizes user-driven discovery over the linear format of the source report, making the complex information more digestible and engaging. -->
+    <!-- Visualization & Content Choices: The application uses a mix of data visualizations and interactive text blocks to tell the story. Goal: Compare -> Viz: Interactive table for SONA attendees, allowing users to filter by faction. Goal: Change -> Viz: Line chart for inflation to show the trend over time. Goal: Compare -> Viz: Bar charts for GDP and infrastructure project status. Goal: Inform -> Viz: Donut chart for legislative progress. Interactive text blocks and tabs are used to organize the President's promises and the public's detailed responses, preventing information overload. All charts use Chart.js on Canvas, adhering to the NO SVG/Mermaid constraint. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <title>The 2025 SONA: An Interactive Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333333;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #4A6C8C;
+            border-bottom-color: #4A6C8C;
+        }
+
+        .tab-button.active {
+            background-color: #4A6C8C;
+            color: #FFFFFF;
+        }
+
+        .tab-button {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .attendee-row.highlight {
+            background-color: #EBF0F4;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-[#333333]">SONA 2025</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview"
+                            class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">At
+                            a Glance</a>
+                        <a href="#divide"
+                            class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">The
+                            Political Divide</a>
+                        <a href="#agenda"
+                            class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">President's
+                            Agenda</a>
+                        <a href="#response"
+                            class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">Nation's
+                            Response</a>
+                        <a href="#outlook"
+                            class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 border-b-2 border-transparent">Outlook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+
+        <section id="overview" class="py-12 md:py-16">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-[#333333]">A Presidency at the Precipice
+                </h1>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">President Marcos Jr.'s 2025 State of the Nation
+                    Address marked the midpoint of his term, delivered against a backdrop of political schism, economic
+                    pressure, and natural calamity. This interactive report unpacks the key themes, data, and divisions
+                    defining the state of the nation.</p>
+            </div>
+
+            <div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-sm font-medium text-gray-500">Inflation Rate (June 2025)</h3>
+                    <p class="mt-1 text-4xl font-bold text-[#4A6C8C]">1.4%</p>
+                    <p class="mt-1 text-sm text-gray-600">Down from a peak of over 6% in 2023.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-sm font-medium text-gray-500">GDP Growth (Q1 2025)</h3>
+                    <p class="mt-1 text-4xl font-bold text-[#4A6C8C]">5.4%</p>
+                    <p class="mt-1 text-sm text-gray-600">Among the fastest in Southeast Asia.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-sm font-medium text-gray-500">Public Debt (May 2025)</h3>
+                    <p class="mt-1 text-4xl font-bold text-[#B95C50]">₱16.9T</p>
+                    <p class="mt-1 text-sm text-gray-600">A staggering and ballooning figure.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-sm font-medium text-gray-500">Unemployment (Apr 2025)</h3>
+                    <p class="mt-1 text-4xl font-bold text-[#B95C50]">4.1%</p>
+                    <p class="mt-1 text-sm text-gray-600">An increase despite job creation vows.</p>
+                </div>
+            </div>
+
+            <div class="mt-12 bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-center">Inflation Tamed</h3>
+                <p class="text-center text-gray-600 mt-2">The administration highlights the drop in headline inflation
+                    as a key success of its economic management.</p>
+                <div class="chart-container mt-4">
+                    <canvas id="inflationChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-gray-300">
+
+        <section id="divide" class="py-12 md:py-16">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#333333]">The Political Divide: A Tale of Two Factions
+                </h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">The 2025 SONA was defined as much by who was
+                    absent as by who was present. The public boycott by Vice President Sara Duterte and her allies,
+                    including the President's own sister, shattered the "UniTeam" myth and showcased a government deeply
+                    fractured.</p>
+            </div>
+
+            <div class="mt-12 bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-center">SONA 2025 Attendee Scorecard</h3>
+                <div class="flex justify-center my-4 space-x-2">
+                    <button id="filter-all"
+                        class="px-4 py-2 text-sm font-medium bg-gray-200 rounded-md hover:bg-gray-300">Show All</button>
+                    <button id="filter-attended"
+                        class="px-4 py-2 text-sm font-medium bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200">Attended</button>
+                    <button id="filter-absent"
+                        class="px-4 py-2 text-sm font-medium bg-red-100 text-red-800 rounded-md hover:bg-red-200">Absent
+                        / Boycotted</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Name</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Position / Affiliation</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendee-table-body" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-gray-300">
+
+        <section id="agenda" class="py-12 md:py-16">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#333333]">The President's Agenda</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">In his address, President Marcos laid out his
+                    administration's accomplishments and priorities, focusing on a narrative of economic resilience,
+                    agricultural progress, and ambitious infrastructure projects under the "Bagong Pilipinas" banner.
+                </p>
+            </div>
+
+            <div class="mt-12">
+                <div class="mb-4 border-b border-gray-200">
+                    <nav class="flex -mb-px space-x-4" aria-label="Tabs">
+                        <button
+                            class="tab-button active whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-md"
+                            data-tab="economy">Economy</button>
+                        <button
+                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-md"
+                            data-tab="agriculture">Agriculture</button>
+                        <button
+                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-md"
+                            data-tab="infrastructure">Infrastructure</button>
+                        <button
+                            class="tab-button whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm rounded-t-md"
+                            data-tab="governance">Governance</button>
+                    </nav>
+                </div>
+                <div id="tab-content" class="bg-white p-6 rounded-b-lg rounded-tr-lg shadow-md">
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-gray-300">
+
+        <section id="response" class="py-12 md:py-16">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#333333]">The Nation's Response</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">The SONA is a dialogue, not a monologue. Voices
+                    from the streets, boardrooms, and civil society offered powerful counter-narratives, highlighting a
+                    deep disconnect between official statistics and the lived reality of many Filipinos.</p>
+            </div>
+
+            <div class="mt-12 grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-red-100 p-3 rounded-full"><span class="text-2xl">📢</span></div>
+                        <h3 class="text-xl font-bold">The Streets Speak</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">Protesters from various sectors gave the administration a "failing
+                        grade," citing high food prices, disaster negligence, and unfulfilled promises on labor and land
+                        reform. Effigies symbolized a critique of the President as a "puppet" of the US and the Vice
+                        President as corrupt.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-blue-100 p-3 rounded-full"><span class="text-2xl">📈</span></div>
+                        <h3 class="text-xl font-bold">The Business Agenda</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">Business groups called for deep structural reforms, not just
+                        incremental changes. Their 15-point legislative agenda includes amending the EPIRA law, passing
+                        a National Land Use Act, and improving connectivity to lower the "cripplingly high" cost of
+                        logistics.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-green-100 p-3 rounded-full"><span class="text-2xl">🔎</span></div>
+                        <h3 class="text-xl font-bold">Analysts Fact-Check</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">Think tanks and news organizations provided critical context, labeling
+                        programs like subsidized rice as "palliative" and highlighting a mixed record on promise
+                        fulfillment. While foreign policy is a strength, domestic issues like hunger and job quality lag
+                        behind.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 border-gray-300">
+
+        <section id="outlook" class="py-12 md:py-16">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#333333]">The Road Ahead</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">The SONA set the stage for the final half of the
+                    Marcos term, defining the legislative battlegrounds and the competing narratives that will shape the
+                    path to the 2028 election.</p>
+            </div>
+
+            <div class="mt-12 grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-bold mb-4">The Legacy Paradox</h3>
+                    <p class="text-gray-600">The administration's legacy depends on completing large-scale
+                        infrastructure and economic projects. However, the very political conflicts it must wage to
+                        maintain power threaten to erode the stability and legislative support needed to fund and finish
+                        them.</p>
+                    <div class="chart-container mt-6">
+                        <canvas id="ledacChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-gray-500 mt-2">Status of 64 priority bills in the 19th Congress.
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-bold mb-4">A Battle of Narratives</h3>
+                    <p class="text-gray-600 mb-4">The "UniTeam" is gone, replaced by a fierce competition for 2028:</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-blue-500 font-bold mr-3">Marcos Camp:</span>
+                            <span class="text-gray-700">Focuses on technical competence, diplomatic wins, infrastructure
+                                delivery, and projecting an image of stable, modernizing governance.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-red-500 font-bold mr-3">Duterte Camp:</span>
+                            <span class="text-gray-700">Builds on nationalist grievance, anti-establishment fervor, and
+                                being the authentic voice of the masses feeling left behind by the economy.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const attendeeData = [
+                { name: 'Ferdinand Marcos Jr.', position: 'President of the Philippines', status: 'Attended' },
+                { name: 'Martin Romualdez', position: 'Speaker of the House', status: 'Attended' },
+                { name: 'Francis "Chiz" Escudero', position: 'Senate President', status: 'Attended' },
+                { name: 'Joseph Estrada', position: 'Former President', status: 'Attended' },
+                { name: 'Gloria Macapagal-Arroyo', position: 'Former President', status: 'Attended' },
+                { name: 'Sara Duterte', position: 'Vice President', status: 'Absent' },
+                { name: 'Imee Marcos', position: 'Senator, President\'s Sister', status: 'Absent' },
+                { name: 'Christopher "Bong" Go', position: 'Senator, Duterte Loyalist', status: 'Absent' },
+                { name: 'Ronald "Bato" dela Rosa', position: 'Senator, Duterte Loyalist', status: 'Absent' },
+                { name: 'Robinhood Padilla', position: 'Senator, Duterte Loyalist', status: 'Absent' },
+                { name: 'Rodrigo Duterte', position: 'Former President (Detained)', status: 'Absent' },
+            ];
+
+            const tabContents = {
+                economy: `
+            <div class="fade-in">
+                <h3 class="text-xl font-bold">Economic Report Card</h3>
+                <p class="mt-2 text-gray-600">The administration's narrative centers on a resilient economy, citing tamed inflation, strong GDP growth, and over $21 billion in new US investment pledges. The Philippines' exit from the FATF Grey List is also touted as a major win for investor confidence.</p>
+                <div class="chart-container mt-6">
+                    <canvas id="gdpChart"></canvas>
+                </div>
+                <p class="text-center text-sm text-gray-500 mt-2">Q1 2025 GDP Growth Rate Comparison</p>
+            </div>
+        `,
+                agriculture: `
+            <div class="fade-in">
+                <h3 class="text-xl font-bold">The P20 Rice Promise</h3>
+                <p class="mt-2 text-gray-600">A key focus was the iconic promise of P20/kilo rice, which the President declared is "becoming a reality" through the subsidized "Benteng Bigas Meron Na" program. This stands in contrast to high market prices.</p>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+                    <div class="bg-green-100 p-4 rounded-lg">
+                        <p class="text-sm font-medium text-green-800">Promised Price (Subsidized)</p>
+                        <p class="text-3xl font-bold text-green-700">₱20/kg</p>
+                    </div>
+                    <div class="bg-yellow-100 p-4 rounded-lg">
+                        <p class="text-sm font-medium text-yellow-800">Actual Market Price</p>
+                        <p class="text-3xl font-bold text-yellow-700">₱45-₱65/kg</p>
+                    </div>
+                </div>
+                <p class="mt-6 text-gray-600">The President also pledged more farm-to-market roads and requested Congress to amend the Coconut Farmers and Industry Trust Fund Act.</p>
+            </div>
+        `,
+                infrastructure: `
+            <div class="fade-in">
+                <h3 class="text-xl font-bold">'Build Better More' Program</h3>
+                <p class="mt-2 text-gray-600">Progress on the 194 Infrastructure Flagship Projects ($176B value) was a key pillar of the address, aiming to improve connectivity and lower logistics costs across the country.</p>
+                <div class="chart-container mt-6">
+                    <canvas id="infraChart"></canvas>
+                </div>
+                <p class="text-center text-sm text-gray-500 mt-2">Completion Status of Key Railway Projects</p>
+            </div>
+        `,
+                governance: `
+            <div class="fade-in">
+                <h3 class="text-xl font-bold">Foreign Policy & Climate Leadership</h3>
+                <p class="mt-2 text-gray-600">The speech reiterated a "friend to all, enemy to none" foreign policy while asserting rights in the West Philippine Sea. A major achievement highlighted was securing a seat on the Loss and Damage Fund Board, positioning the Philippines as a leader in climate justice.</p>
+                <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800">Legislative Request: Climate Finance</h4>
+                    <p class="text-blue-700">President Marcos called on Congress to pass an enabling law to give legal personality to the Loss and Damage Fund Board, allowing the country to fully access climate financing.</p>
+                </div>
+                <p class="mt-4 text-gray-600">The administration's definitive policy on the broader online gaming industry, following the 2024 POGO ban, was also an anticipated but contentious topic.</p>
+            </div>
+        `
+            };
+
+            const attendeeTableBody = document.getElementById('attendee-table-body');
+            const filterAllBtn = document.getElementById('filter-all');
+            const filterAttendedBtn = document.getElementById('filter-attended');
+            const filterAbsentBtn = document.getElementById('filter-absent');
+
+            function renderTable(filter = 'All') {
+                attendeeTableBody.innerHTML = '';
+                const filteredData = attendeeData.filter(attendee => {
+                    if (filter === 'All') return true;
+                    return attendee.status === filter;
+                });
+
+                filteredData.forEach(attendee => {
+                    const row = document.createElement('tr');
+                    row.className = 'attendee-row transition-all duration-300';
+                    const statusClass = attendee.status === 'Attended'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-red-100 text-red-800';
+
+                    row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${attendee.name}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500">${attendee.position}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                        ${attendee.status}
+                    </span>
+                </td>
+            `;
+                    attendeeTableBody.appendChild(row);
+                });
+            }
+
+            filterAllBtn.addEventListener('click', () => renderTable('All'));
+            filterAttendedBtn.addEventListener('click', () => renderTable('Attended'));
+            filterAbsentBtn.addEventListener('click', () => renderTable('Absent'));
+
+            const tabContainer = document.querySelector('nav[aria-label="Tabs"]');
+            const tabContentContainer = document.getElementById('tab-content');
+
+            function renderTabContent(tabId) {
+                tabContentContainer.innerHTML = tabContents[tabId];
+
+                if (tabId === 'economy') {
+                    createGdpChart();
+                } else if (tabId === 'infrastructure') {
+                    createInfraChart();
+                }
+            }
+
+            tabContainer.addEventListener('click', (e) => {
+                if (e.target.matches('.tab-button')) {
+                    tabContainer.querySelector('.active').classList.remove('active');
+                    e.target.classList.add('active');
+                    renderTabContent(e.target.dataset.tab);
+                }
+            });
+
+            function createInflationChart() {
+                const ctx = document.getElementById('inflationChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan 2023', 'Apr 2023', 'Jul 2023', 'Oct 2023', 'Jan 2024', 'Apr 2024', 'Jul 2024', 'Oct 2024', 'Jan 2025', 'Apr 2025', 'Jun 2025'],
+                        datasets: [{
+                            label: 'Headline Inflation Rate (%)',
+                            data: [8.7, 7.6, 6.4, 4.9, 3.7, 3.0, 2.8, 2.5, 2.1, 1.8, 1.4],
+                            borderColor: '#4A6C8C',
+                            backgroundColor: 'rgba(74, 108, 140, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, title: { display: true, text: 'Rate (%)' } } }
+                    }
+                });
+            }
+
+            function createGdpChart() {
+                const ctx = document.getElementById('gdpChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Philippines', 'Vietnam', 'Indonesia', 'Malaysia', 'Thailand'],
+                        datasets: [{
+                            label: 'Q1 2025 GDP Growth (%)',
+                            data: [5.4, 6.1, 5.1, 4.2, 1.5],
+                            backgroundColor: ['#4A6C8C', '#6B8EAD', '#6B8EAD', '#6B8EAD', '#6B8EAD'],
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            function createInfraChart() {
+                const ctx = document.getElementById('infraChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['MRT-7 (QC-Bulacan)', 'NSCR (North-South)', 'LRT-1 Cavite Ext.'],
+                        datasets: [{
+                            label: 'Completion (%)',
+                            data: [80, 30, 100],
+                            backgroundColor: ['#4A6C8C', '#B95C50', '#5A9A78'],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { x: { max: 100, title: { display: true, text: 'Percent Complete' } } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            function createLedacChart() {
+                const ctx = document.getElementById('ledacChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Enacted', 'Pending/Unpassed'],
+                        datasets: [{
+                            data: [33, 31],
+                            backgroundColor: ['#4A6C8C', '#D1D5DB'],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            title: { display: true, text: '19th Congress Priority Bill Status' }
+                        }
+                    }
+                });
+            }
+
+            renderTable();
+            renderTabContent('economy');
+            createInflationChart();
+            createLedacChart();
+
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.4
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+        });
+    </script>
+</body>
+
+</html>
