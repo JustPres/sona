@@ -44,6 +44,14 @@ class UpdatesTracker {
     }
 
     async fetchNewsUpdates() {
+        // Check if we're in production (not localhost)
+        const isProduction = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+
+        if (isProduction) {
+            // Return static updates in production
+            return this.getStaticUpdates();
+        }
+
         const query = 'President Marcos accomplishments OR achievements OR progress';
         const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&domains=${NEWS_SOURCES.join(',')}&language=en&sortBy=publishedAt`;
 
@@ -57,8 +65,58 @@ class UpdatesTracker {
             return this.formatNewsData(data.articles);
         } catch (error) {
             console.error('Error fetching news:', error);
-            return [];
+            // Fallback to static updates if API fails
+            return this.getStaticUpdates();
         }
+    }
+
+    getStaticUpdates() {
+        // Static updates based on SONA data
+        const sonaData = {
+            "updates": [
+                {
+                    "title": "Infrastructure Progress: MRT-7 Now 80% Complete",
+                    "description": "The MRT-7 project connecting Quezon City to Bulacan shows significant progress with 80% completion rate, promising improved transportation for commuters.",
+                    "source": "Infrastructure Update",
+                    "url": "#infrastructure",
+                    "date": new Date(2025, 6, 24),
+                    "type": "official"
+                },
+                {
+                    "title": "Economic Milestone: Inflation Rate Drops to 1.4%",
+                    "description": "The Philippines records a significant economic achievement with inflation rate dropping to 1.4%, marking a substantial improvement from previous years.",
+                    "source": "Economic Report",
+                    "url": "#economy",
+                    "date": new Date(2025, 6, 24),
+                    "type": "official"
+                },
+                {
+                    "title": "Agricultural Initiative: P20/Kilo Rice Program Progress",
+                    "description": "The administration's flagship P20/kilo rice program shows progress in implementation, aiming to make rice more affordable for Filipino families.",
+                    "source": "Agriculture Update",
+                    "url": "#agriculture",
+                    "date": new Date(2025, 6, 24),
+                    "type": "official"
+                },
+                {
+                    "title": "Philippines Secures $21B in US Investment Pledges",
+                    "description": "Major economic breakthrough as US investors commit $21 billion in various sectors, boosting economic outlook.",
+                    "source": "Investment News",
+                    "url": "#economy",
+                    "date": new Date(2025, 6, 24),
+                    "type": "news"
+                },
+                {
+                    "title": "Climate Leadership: PH Joins Loss and Damage Fund Board",
+                    "description": "The Philippines strengthens its position in global climate action by securing a seat on the Loss and Damage Fund Board.",
+                    "source": "Governance Update",
+                    "url": "#governance",
+                    "date": new Date(2025, 6, 24),
+                    "type": "news"
+                }
+            ]
+        };
+        return sonaData.updates;
     }
 
     async fetchPNAUpdates() {
